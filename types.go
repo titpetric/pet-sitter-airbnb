@@ -11,6 +11,7 @@ type (
 	verifier struct{}
 	Verifier interface {
 		Start(*Sitter) error
+		Complete(*Sitter) error
 	}
 	Customer struct{}
 	Review   struct{}
@@ -29,12 +30,19 @@ var (
 )
 
 type verifierMock struct {
-	err error
 }
 
 func (v *verifierMock) Start(s *Sitter) error {
 	if s.Verified == NOT_VERIFIED {
 		s.Verified = IN_PROGRESS
+		return nil
+	}
+	return ErrInvalidState
+}
+
+func (v *verifierMock) Complete(s *Sitter) error {
+	if s.Verified == IN_PROGRESS {
+		s.Verified = VERIFIED
 		return nil
 	}
 	return ErrInvalidState
